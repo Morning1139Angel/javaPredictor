@@ -43,5 +43,8 @@ public class GAg implements BranchPredictor {
     @Override    public String monitor() {
         return "GAg predictor snapshot: \n" + BHR.monitor() + SC.monitor() + PHT.monitor();    }
     public static void main(String[] args) {
-        GAg gag = new GAg(4, 2);    }
+        GAg gag = new GAg(4, 2);    
+        gag.    
+        
+    }
 }
