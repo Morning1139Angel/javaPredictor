@@ -14,7 +14,7 @@ public class GAg implements BranchPredictor {
         // Initialize the BHR register with the given size and no default value
         this.BHR = new SIPORegister("bhr", BHRSize, null );
         // Initialize the PHT with a size of 2^size and each entry having a saturating counter of size "SCSize"
-        this.PHT = new PageHistoryTable(2^BHRSize, SCSize);
+        this.PHT = new PageHistoryTable((int)Math.pow(2, BHRSize), SCSize);
         // Initialize the SC register
         this.SC =  new SIPORegister("sc", SCSize ,null);
     }
