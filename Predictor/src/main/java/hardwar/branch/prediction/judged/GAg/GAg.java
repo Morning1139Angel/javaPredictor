@@ -13,35 +13,38 @@ public class GAg implements BranchPredictor {
      * @param SCSize  the size of the register which hold the saturating counter value and the cache block size     */
     public GAg(int BHRSize, int SCSize) {        // TODO : complete the constructor
         // Initialize the BHR register with the given size and no default value
-        this.BHR = new SIPORegister("bhr", BHRSize, null );
+        this.BHR = new SIPORegister("bhr", BHRSize, Bit.getDefaultBlock() );
         // Initialize the PHT with a size of 2^size and each entry having a saturating counter of size "SCSize"
         this.PHT = new PageHistoryTable((int)Math.pow(2, BHRSize), SCSize);
         // Initialize the SC register
-        this.SC =  new SIPORegister("sc", SCSize ,null);
+        this.SC =  new SIPORegister("sc", SCSize ,Bit.getDefaultBlock());
     }
     /**     * Predicts the result of a branch instruction based on the global branch history
      *     * @param branchInstruction the branch instruction
      * @return the predicted outcome of the branch instruction (taken or not taken)     */
-    @Override    public BranchResult predict(BranchInstruction branchInstruction) {
+    @Override 
+    public BranchResult predict(BranchInstruction branchInstruction) {
         Bit[] bhrValue = this.BHR.read();
         Bit[] readBlock = this.PHT.get(bhrValue);
         this.SC.load(readBlock); 
         return BranchResult.of(readBlock[0].getValue());
     }
-    
+    /**
+     * Updates the values in the cache based on the actual branch result     *
+     * @param instruction the branch instruction     * @param actual      the actual result of the branch condition
+     */ 
     public void update(BranchInstruction instruction, BranchResult actual) {
         if (BranchResult.isTaken(actual)){            this.SC.load(CombinationalLogic.count(this.SC.read(), true,CountMode.SATURATING));
         }        else {
-        this.SC.load(CombinationalLogic.count(this.SC.read(), false,CountMode.SATURATING));    
-        }
+            this.SC.load(CombinationalLogic.count(this.SC.read(), false,CountMode.SATURATING));        }
         this.BHR.insert(Bit.of(BranchResult.isTaken(actual)));
     }
     /**
      * @return a zero series of bits as default value of cache block     */
-    private Bit[] getDefaultBlock() {       
-        Bit[] defaultBlock = new Bit[SC.getLength()];
+    private Bit[] getDefaultBlock() {        Bit[] defaultBlock = new Bit[SC.getLength()];
         Arrays.fill(defaultBlock, Bit.ZERO);        return defaultBlock;
     }
+    @Override    
     public String monitor() {
         return "GAg predictor snapshot: \n" + BHR.monitor() + SC.monitor() + PHT.monitor();    }
     public static void main(String[] args) {
