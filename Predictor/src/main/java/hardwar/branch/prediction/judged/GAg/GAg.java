@@ -5,7 +5,8 @@ public class GAg implements BranchPredictor {
     private final ShiftRegister BHR; // branch history register
     private final Cache<Bit[], Bit[]> PHT; // page history table
     private final ShiftRegister SC; // saturated counter register
-    public GAg() {        this(4, 2);
+    public GAg() {        
+        this(4, 2);
     }
     /**     * Creates a new GAg predictor with the given BHR register size and initializes the BHR and PHT.
      *     * @param BHRSize the size of the BHR register
@@ -22,25 +23,26 @@ public class GAg implements BranchPredictor {
      *     * @param branchInstruction the branch instruction
      * @return the predicted outcome of the branch instruction (taken or not taken)     */
     @Override    public BranchResult predict(BranchInstruction branchInstruction) {
-        Bit[] bhrValue = this.BHR.read();        Bit[] readBlock = this.PHT.get(bhrValue);
-        this.SC.load(readBlock);        return BranchResult.of(readBlock[0].getValue());
+        Bit[] bhrValue = this.BHR.read();
+        Bit[] readBlock = this.PHT.get(bhrValue);
+        this.SC.load(readBlock); 
+        return BranchResult.of(readBlock[0].getValue());
     }
-    /**
-     * Updates the values in the cache based on the actual branch result     *
-     * @param instruction the branch instruction     * @param actual      the actual result of the branch condition
-     */    @Override
+    
     public void update(BranchInstruction instruction, BranchResult actual) {
         if (BranchResult.isTaken(actual)){            this.SC.load(CombinationalLogic.count(this.SC.read(), true,CountMode.SATURATING));
         }        else {
-            this.SC.load(CombinationalLogic.count(this.SC.read(), false,CountMode.SATURATING));        }
+        this.SC.load(CombinationalLogic.count(this.SC.read(), false,CountMode.SATURATING));    
+        }
         this.BHR.insert(Bit.of(BranchResult.isTaken(actual)));
     }
     /**
      * @return a zero series of bits as default value of cache block     */
-    private Bit[] getDefaultBlock() {        Bit[] defaultBlock = new Bit[SC.getLength()];
+    private Bit[] getDefaultBlock() {       
+        Bit[] defaultBlock = new Bit[SC.getLength()];
         Arrays.fill(defaultBlock, Bit.ZERO);        return defaultBlock;
     }
-    @Override    public String monitor() {
+    public String monitor() {
         return "GAg predictor snapshot: \n" + BHR.monitor() + SC.monitor() + PHT.monitor();    }
     public static void main(String[] args) {
         GAg gag = new GAg(4, 2);    }
