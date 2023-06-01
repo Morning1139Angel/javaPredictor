@@ -2,7 +2,7 @@ package hardwar.branch.prediction.judged.GAg;
 import hardwar.branch.prediction.shared.*;import hardwar.branch.prediction.shared.devices.*;
 import java.util.Arrays;
 public class GAg implements BranchPredictor {
-    private final ShiftRegister BHR; // branch history register    
+    private final ShiftRegister BHR; // branch history register
     private final Cache<Bit[], Bit[]> PHT; // page history table
     private final ShiftRegister SC; // saturated counter register
     public GAg() {        this(4, 2);
@@ -11,10 +11,12 @@ public class GAg implements BranchPredictor {
      *     * @param BHRSize the size of the BHR register
      * @param SCSize  the size of the register which hold the saturating counter value and the cache block size     */
     public GAg(int BHRSize, int SCSize) {        // TODO : complete the constructor
-        // Initialize the BHR register with the given size and no default value        this.BHR = new SIPORegister("bhr", BHRSize, null );
+        // Initialize the BHR register with the given size and no default value
+        this.BHR = new SIPORegister("bhr", BHRSize, null );
         // Initialize the PHT with a size of 2^size and each entry having a saturating counter of size "SCSize"
         this.PHT = new PageHistoryTable(2^BHRSize, SCSize);
-        // Initialize the SC register        this.SC =  new SIPORegister("sc", SCSize ,null);
+        // Initialize the SC register
+        this.SC =  new SIPORegister("sc", SCSize ,null);
     }
     /**     * Predicts the result of a branch instruction based on the global branch history
      *     * @param branchInstruction the branch instruction
