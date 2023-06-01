@@ -40,7 +40,11 @@ public class GAg implements BranchPredictor {
      */
     @Override
     public BranchResult predict(BranchInstruction branchInstruction) {
-        return new BranchResult((this.PHT.get(branchInstruction.getInstructionAddress())[0]).getValue());
+        Bit[] bhrValue = this.BHR.read();
+        Bit[] readBlock = this.PHT.get(bhrValue);
+        this.SC.load(readBlock);
+        return BranchResult.of(readBlock[0]);
+
     }
 
     /**
@@ -51,12 +55,14 @@ public class GAg implements BranchPredictor {
      */
     @Override
     public void update(BranchInstruction instruction, BranchResult actual) {
-        if(BranchResult.isTaken(actual)){
-            this.PHT.put(instruction.getInstructionAddress() ,CombinationalLogic.saturateCount( this.PHT.get(instruction.getInstructionAddress()),true))
+        
+        if (actual.isTaken){
+            this.SC = CombinationalLogic.saturateCount(this.SC, up);
         } else {
-            this.PHT.put(instruction.getInstructionAddress() ,CombinationalLogic.saturateCount( this.PHT.get(instruction.getInstructionAddress()),false))
+            this.SC = CombinationalLogic.saturateCount(this.SC, down);
         }
-        this.BHR.insert(new Bit(actual.isTaken()));
+
+        this.BHR.insert(BranchResult.of(actual)));
     }
 
 
